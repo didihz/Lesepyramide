@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pyramidenlesen</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:linear-gradient(170deg,#fefcf9,#f8f2ea 35%,#f0e8dc);font-family:system-ui,-apple-system,sans-serif;color:#2c1810}
+button{font-family:inherit;cursor:pointer;transition:all 0.15s}
+button:hover{filter:brightness(1.05)}
+button:active{transform:scale(0.97)}
+.wrap{max-width:640px;margin:0 auto;padding:1.3rem 1.1rem 3rem}
+.hero{text-align:center;margin-bottom:1.8rem;padding-top:0.6rem;animation:fi 0.4s ease}
+.tag{display:inline-block;font-size:0.64rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#cc7832;background:#fef6ee;padding:0.25rem 0.8rem;border-radius:16px;margin-bottom:0.8rem}
+h1{font-family:Georgia,serif;font-size:clamp(1.8rem,6vw,3rem);font-weight:900;line-height:1.1;margin-bottom:0.5rem}
+.sub{color:#8a7a6a;font-size:0.95rem;max-width:440px;margin:0 auto;line-height:1.55}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.55rem}
+.card{background:#fff;border:1px solid #e8ddd0;border-radius:14px;padding:0.9rem 0.8rem;text-align:left;font-family:inherit;animation:su 0.3s ease both}
+.card .em{font-size:1.5rem;display:block;margin-bottom:0.25rem}
+.card .nm{font-weight:700;font-size:0.9rem;margin-bottom:0.08rem}
+.card .ct{font-size:0.68rem;color:#b8a898}
+.foot{margin-top:1.5rem;background:#fff;border:1px solid #e8ddd0;border-radius:16px;padding:1rem}
+.foot p{font-size:0.8rem;color:#6a5a4a;line-height:1.6}
+.bp{padding:0.55rem 1.2rem;border:none;border-radius:12px;background:linear-gradient(135deg,#cc7832,#b86a28);color:#fff;font-weight:650;font-size:0.88rem;box-shadow:0 2px 8px rgba(204,120,50,0.25)}
+.bs{padding:0.55rem 1.2rem;border:1.5px solid #d8ccbe;border-radius:12px;background:#fff;color:#5a4a3a;font-weight:650;font-size:0.88rem}
+.bg{padding:0.4rem 0.7rem;border:none;border-radius:8px;background:none;color:#8a7a6a;font-weight:500;font-size:0.86rem}
+.pill{font-size:0.72rem;font-weight:600;padding:0.22rem 0.6rem;border-radius:9px;display:inline-block}
+.pyr-box{width:100%;min-height:clamp(280px,48vh,500px);background:linear-gradient(160deg,#faf6f1,#f5efe6,#efe7db);border-radius:22px;position:relative;overflow:hidden;border:1px solid #e8ddd0}
+.pyr-center{display:flex;align-items:center;justify-content:center;height:100%;min-height:280px;text-align:center}
+.pyr-list{display:flex;flex-direction:column;align-items:center;gap:0.12rem;padding:1rem 0.5rem;overflow:auto;max-height:clamp(280px,48vh,500px)}
+.pyr-item{font-family:Georgia,serif;text-align:center;padding:0.3rem 0.7rem;border-radius:10px;border:1.5px solid transparent;transition:all 0.35s ease;max-width:100%;line-height:1.5}
+.pyr-item.active{font-weight:800;color:#1a120a;background:rgba(204,120,50,0.08);border-color:rgba(204,120,50,0.25);transform:scale(1.05)}
+.pyr-item.past{color:#c8b8a4;font-weight:500}
+.pyr-item.future{color:#ddd4c8;font-weight:500}
+.prog{position:absolute;bottom:0;left:0;height:3px;background:linear-gradient(90deg,#cc7832,#e6973e);transition:width 0.35s ease}
+.done-box{background:linear-gradient(160deg,#faf6f1,#efe7db);border-radius:22px;padding:2rem 1.2rem;border:1px solid #e8ddd0;text-align:center;animation:fi 0.4s ease}
+.done-box h3{font-family:Georgia,serif;font-size:1.4rem;margin-bottom:0.2rem}
+.btns{display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes su{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="wrap" id="app"></div>
+
+<script>
+var P = [
+  ["Fu\u00DFball","\u26BD","Tor","der Ball","Fu\u00DFball","Fu\u00DFball spielen","ein Tor schie\u00DFen","Heute spiele ich Fu\u00DFball.","Ich schie\u00DFe auf das Tor.","Der Torwart h\u00E4lt den Ball.","Der Fu\u00DFballspieler schie\u00DFt ein Tor.","Der Schiedsrichter zeigt dem Spieler die gelbe Karte."],
+  ["Allgemein","\uD83D\uDCD6","Meer","Wasser","Weihnachten","Ich fahre nach Berlin.","Heute scheint die Sonne.","Ostermontag ist ein Feiertag.","Auf der Autobahn ist ein langer Stau.","Im Schloss wohnt eine verwunschene Prinzessin.","Auf dem Mond wachsen weder B\u00E4ume noch Blumen.","Am liebsten gehe ich freitags abends mit meiner Freundin ins Kino."],
+  ["Tiere","\uD83D\uDC3E","Hund","die Katze","Eichh\u00F6rnchen","Der Hund bellt laut.","Die Katze schl\u00E4ft gern.","Der Vogel singt im Baum.","Das Eichh\u00F6rnchen klettert schnell.","Die Ente schwimmt auf dem Teich.","Im Zoo kann man viele Tiere beobachten.","Mein Hund spielt am liebsten mit seinem roten Ball im Garten."],
+  ["Schule","\uD83C\uDFEB","Buch","die Tafel","Stundenplan","Ich lese ein Buch.","Heute haben wir Mathe.","Die Lehrerin erkl\u00E4rt die Aufgabe.","Nach der Schule gehe ich nach Hause.","In der Bibliothek stehen viele spannende B\u00FCcher.","Der Klassenausflug in den Zoo hat allen gut gefallen.","Am Freitag schreiben wir einen Test in Deutsch und Mathematik."],
+  ["Kochen","\uD83C\uDF73","Topf","das Salz","die Nudeln","Die Nudeln kochen.","Ich schneide die Tomaten.","Mama kocht eine leckere Suppe.","Zum Nachtisch gibt es Schokoladenpudding.","Wir essen jeden Abend zusammen am gro\u00DFen Tisch.","Am Wochenende backen wir einen Kuchen mit Erdbeeren.","Oma hat mir beigebracht, wie man Kartoffelpuffer richtig zubereitet."],
+  ["Wetter","\u26C5","Regen","die Sonne","Regenbogen","Es regnet stark.","Die Sonne scheint hell.","Der Wind weht kr\u00E4ftig.","Dicke Wolken ziehen am Himmel auf.","Nach dem Regen erscheint ein Regenbogen.","Die Kinder bauen einen gro\u00DFen Schneemann im Garten.","Heute ist es so warm, dass wir im Freibad schwimmen gehen k\u00F6nnen."],
+  ["Wald","\uD83C\uDF32","Baum","das Moos","die Pilze","Ein Reh steht still.","Der Specht klopft laut.","Die B\u00E4ume sind sehr hoch und alt.","Unter dem Laub versteckt sich ein K\u00E4fer.","Ein schmaler Pfad f\u00FChrt tief in den dunklen Wald.","Die Kinder sammeln Kastanien und bunte Bl\u00E4tter im Herbst.","Nach einem langen Spaziergang durch den Wald trinken wir hei\u00DFen Kakao."],
+  ["Weltraum","\uD83D\uDE80","Mond","die Sterne","die Rakete","Der Mond leuchtet.","Die Sterne funkeln hell.","Der Mars ist ein roter Planet.","Astronauten schweben in der Raumstation.","Die Erde sieht vom Weltraum aus wie eine blaue Kugel.","Eines Tages m\u00F6chte ich mit einer Rakete zum Mond fliegen.","Wissenschaftler erforschen das Weltall mit riesigen Teleskopen."],
+  ["Freundschaft","\uD83E\uDD1D","Freund","zusammen","beste Freundin","Wir spielen gern.","Freunde helfen sich.","Heute besuche ich meinen Freund.","Wir teilen unser Pausenbrot miteinander.","Am Nachmittag gehen wir zusammen auf den Spielplatz.","Meine beste Freundin und ich kennen uns seit dem Kindergarten.","Wenn man sich streitet, ist es wichtig, sich wieder zu vertragen."],
+  ["Musik","\uD83C\uDFB5","Lied","die Gitarre","Schlagzeug","Ich singe gern.","Die Musik ist laut.","Das Klavier klingt sehr sch\u00F6n.","Mein Bruder spielt jeden Tag Gitarre.","Im Chor singen wir alle zusammen ein Lied.","Beim Konzert klatschen alle Zuschauer begeistert mit.","Am Wochenende gehen wir auf ein gro\u00DFes Musikfestival mit vielen Bands."],
+  ["Ferien","\uD83C\uDFD6\uFE0F","Strand","das Meer","Sandburg","Wir fahren ans Meer.","Die Wellen sind hoch.","Ich baue eine gro\u00DFe Sandburg.","Am Strand sammeln wir bunte Muscheln.","Das Wasser ist warm und wir schwimmen weit raus.","In den Ferien haben wir endlich Zeit f\u00FCr Abenteuer und Spa\u00DF.","Am sch\u00F6nsten ist es, wenn die ganze Familie zusammen in den Urlaub f\u00E4hrt."],
+  ["Superhelden","\uD83E\uDDB8","Held","der Umhang","Superkraft","Der Held ist stark.","Er fliegt durch die Luft.","Die Heldin rettet die Stadt.","Sein Umhang weht im Wind hinter ihm her.","Mit seiner Superkraft kann er H\u00E4user hochheben.","Die Menschen jubeln, als die Heldin den Tag rettet.","Die Superheldin fliegt schneller als ein Flugzeug \u00FCber die gro\u00DFe Stadt."],
+  ["Detektive","\uD83D\uDD0D","Spur","die Lupe","Geheimnis","Wer war das wohl?","Die Spur f\u00FChrt zum Park.","Unter dem Tisch liegt ein geheimer Brief.","Mit der Lupe untersucht er jedes kleine Detail.","Die drei Freunde l\u00F6sen gemeinsam den schwierigen Fall.","Am Ende stellt sich heraus, dass der Nachbar alles beobachtet hatte.","Ein guter Detektiv stellt viele Fragen und h\u00F6rt immer ganz genau zu."],
+  ["Bauernhof","\uD83D\uDC04","Kuh","das Huhn","der Traktor","Die Kuh gibt Milch.","Der Hahn kr\u00E4ht laut.","Der Bauer f\u00E4hrt den Traktor.","Die H\u00FChner legen jeden Morgen frische Eier.","Auf der Weide stehen K\u00FChe, Schafe und Ziegen.","Im Herbst wird das Getreide mit dem gro\u00DFen M\u00E4hdrescher geerntet.","Auf dem Bauernhof gibt es immer viel zu tun, von fr\u00FCh bis sp\u00E4t am Abend."],
+  ["Piraten","\uD83C\uDFF4","Schiff","die Insel","Schatzkarte","Das Schiff f\u00E4hrt los.","Der Pirat sucht Gold.","Eine Insel taucht am Horizont auf.","Der Kapit\u00E4n schaut durch sein Fernrohr.","Die Mannschaft gr\u00E4bt nach dem versteckten Schatz.","Auf der geheimen Karte ist ein gro\u00DFes Kreuz eingezeichnet.","Der mutige Pirat segelt mit seinem Schiff \u00FCber das weite, blaue Meer."],
+  ["Geburtstag","\uD83C\uDF82","Kuchen","Geschenk","Luftballons","Heute ist mein Geburtstag!","Ich bekomme viele Geschenke.","Mama hat einen Kuchen gebacken.","Wir spielen lustige Spiele im Garten.","Meine Freunde kommen alle zu meiner Party.","Der Schokoladenkuchen hat bunte Streusel und acht Kerzen.","Am Ende des Tages bin ich gl\u00FCcklich und m\u00FCde und schlafe sofort ein."],
+  ["Dinosaurier","\uD83E\uDD95","Dino","das Fossil","Tyrannosaurus","Dinosaurier waren riesig.","Sie lebten vor langer Zeit.","Der T-Rex hatte scharfe Z\u00E4hne.","Manche Dinosaurier konnten fliegen.","Im Museum stehen gro\u00DFe Skelette aus echten Knochen.","Wissenschaftler finden versteinerte Knochen tief in der Erde.","Vor Millionen von Jahren lebten die Dinosaurier auf der ganzen Welt."],
+  ["M\u00E4rchen","\uD83E\uDDD9","Fee","der Prinz","Zauberstab","Es war einmal...","Die Fee fliegt davon.","Im Wald steht ein kleines H\u00E4uschen.","Die Prinzessin tr\u00E4gt ein goldenes Kleid.","Der mutige Ritter k\u00E4mpft gegen den b\u00F6sen Drachen.","Am Ende leben sie alle gl\u00FCcklich und zufrieden zusammen.","In einem fernen K\u00F6nigreich lebte einmal ein kleines M\u00E4dchen mit roten Schuhen."],
+];
+
+var state = { screen:"home", items:[], title:"", ci:-1, rnd:1, done:false };
+var app = document.getElementById("app");
+
+function h(tag, attrs, children) {
+  var el = document.createElement(tag);
+  if (attrs) for (var k in attrs) {
+    if (k === "style" && typeof attrs[k] === "object") {
+      for (var s in attrs[k]) el.style[s] = attrs[k][s];
+    } else if (k === "onclick") el.onclick = attrs[k];
+    else if (k === "className") el.className = attrs[k];
+    else el.setAttribute(k, attrs[k]);
+  }
+  if (children != null) {
+    if (typeof children === "string") el.textContent = children;
+    else if (Array.isArray(children)) children.forEach(function(c){ if(c) el.appendChild(c); });
+    else el.appendChild(children);
+  }
+  return el;
+}
+
+function fontSize(len) {
+  if (len <= 5) return "clamp(1rem,3.5vw,1.5rem)";
+  if (len <= 15) return "clamp(0.95rem,3vw,1.3rem)";
+  if (len <= 30) return "clamp(0.88rem,2.5vw,1.1rem)";
+  return "clamp(0.78rem,2vw,0.95rem)";
+}
+
+function render() {
+  app.innerHTML = "";
+  if (state.screen === "home") renderHome();
+  else if (state.screen === "ex") renderEx();
+}
+
+function renderHome() {
+  // Hero
+  var hero = h("div", {className:"hero"}, [
+    h("div", {className:"tag"}, "\uD83D\uDD3A Sichtwortschatztraining"),
+    h("h1", null, "Pyramidenlesen"),
+    h("p", {className:"sub"}, "W\u00E4hle eine Pyramide und lies jede Stufe laut vor \u2013 von kurzen W\u00F6rtern zu ganzen S\u00E4tzen!")
+  ]);
+  app.appendChild(hero);
+
+  // Grid
+  var grid = h("div", {className:"grid"});
+  P.forEach(function(d, i) {
+    var card = h("button", {className:"card", style:{animationDelay:i*0.04+"s"}, onclick:function(){
+      state.items = d.slice(2); state.title = d[1]+" "+d[0];
+      state.ci = -1; state.rnd = 1; state.done = false;
+      state.screen = "ex"; render();
+    }}, [
+      h("span", {className:"em"}, d[1]),
+      h("div", {className:"nm"}, d[0]),
+      h("div", {className:"ct"}, (d.length-2)+" Stufen")
+    ]);
+    grid.appendChild(card);
+  });
+  app.appendChild(grid);
+
+  // Footer
+  var foot = h("div", {className:"foot"}, [
+    h("p", null, "3\u00D7 hintereinander wiederholen, 1\u20132 Wochen t\u00E4glich \u00FCben. So werden W\u00F6rter als Ganzes erkannt!")
+  ]);
+  app.appendChild(foot);
+}
+
+function renderEx() {
+  var items = state.items;
+
+  // Done screen
+  if (state.done) {
+    var box = h("div", {className:"done-box"}, [
+      h("div", {style:{fontSize:"3rem",marginBottom:"0.3rem"}}, "\uD83C\uDFC6"),
+      h("h3", null, "Alle 3 Runden geschafft!"),
+      h("p", {style:{color:"#8a7a6a",marginBottom:"0.3rem"}}, items.length+" Stufen \u00D7 3 = "+(items.length*3)+"\u00D7 gelesen!"),
+      h("p", {style:{color:"#b8a898",fontSize:"0.8rem",marginBottom:"1.2rem"}}, "\u00DCbe diese Pyramide n\u00E4chste Woche weiter."),
+      h("div", {className:"btns"}, [
+        h("button", {className:"bp", onclick:function(){ state.rnd=1; state.ci=-1; state.done=false; render(); }}, "Nochmal"),
+        h("button", {className:"bs", onclick:function(){ state.screen="home"; render(); }}, "\u2190 Zur\u00FCck")
+      ])
+    ]);
+    app.appendChild(box);
+    return;
+  }
+
+  // Top bar
+  var top = h("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"0.7rem"}}, [
+    h("button", {className:"bg", onclick:function(){ state.screen="home"; render(); }}, "\u2190 Zur\u00FCck"),
+    h("div", {style:{display:"flex",gap:"0.35rem"}}, (function(){
+      var pills = [h("span", {className:"pill", style:{background:"#f5efe8",color:"#8a7a6a"}}, "Runde "+state.rnd+"/3")];
+      if (state.ci >= 0) pills.push(h("span", {className:"pill", style:{background:"#fef6ee",color:"#cc7832"}}, "Stufe "+(state.ci+1)+"/"+items.length));
+      return pills;
+    })())
+  ]);
+  app.appendChild(top);
+
+  // Title
+  app.appendChild(h("h2", {style:{fontFamily:"Georgia,serif",fontSize:"1.15rem",textAlign:"center",marginBottom:"0.7rem"}}, state.title));
+
+  // Pyramid box
+  var box = h("div", {className:"pyr-box"});
+
+  if (state.ci < 0) {
+    // Start screen
+    var center = h("div", {className:"pyr-center"}, [
+      h("div", null, [
+        h("div", {style:{fontSize:"2.2rem",marginBottom:"0.4rem",opacity:"0.5"}}, "\uD83D\uDD3A"),
+        h("p", {style:{color:"#8a7a6a",fontSize:"0.9rem",marginBottom:"1rem"}}, state.rnd===1 ? items.length+" Stufen bereit" : "Runde "+state.rnd+" \u2013 nochmal!"),
+        h("button", {className:"bp", onclick:function(){ state.ci=0; render(); }}, "\u25B6 "+(state.rnd===1?"Starten":"Runde "+state.rnd))
+      ])
+    ]);
+    box.appendChild(center);
+  } else {
+    // Pyramid items
+    var list = h("div", {className:"pyr-list"});
+    items.forEach(function(t, i) {
+      var cls = "pyr-item";
+      if (i === state.ci) cls += " active";
+      else if (i < state.ci) cls += " past";
+      else cls += " future";
+      var item = h("div", {className:cls, style:{fontSize:fontSize(t.length), letterSpacing:t.length<=10?"0.1em":"0"}}, t);
+      list.appendChild(item);
+    });
+    box.appendChild(list);
+
+    // Progress bar
+    var prog = h("div", {className:"prog", style:{width:((state.ci+1)/items.length*100)+"%"}});
+    box.appendChild(prog);
+
+    // Scroll active into view
+    setTimeout(function(){
+      var active = list.querySelector(".active");
+      if (active) active.scrollIntoView({behavior:"smooth",block:"center"});
+    }, 50);
+  }
+  app.appendChild(box);
+
+  // Controls
+  if (state.ci >= 0) {
+    var label;
+    if (state.ci < items.length-1) label = "N\u00E4chste Stufe \u2193";
+    else if (state.rnd < 3) label = "Runde "+(state.rnd+1)+" \u2192";
+    else label = "\uD83C\uDFC6 Ergebnis";
+
+    var ctrls = h("div", {className:"btns", style:{marginTop:"0.9rem"}}, [
+      h("button", {className:"bp", onclick:function(){
+        if (state.ci < items.length-1) { state.ci++; }
+        else if (state.rnd < 3) { state.rnd++; state.ci = -1; }
+        else { state.done = true; }
+        render();
+      }}, label),
+      h("button", {className:"bs", onclick:function(){ state.ci=0; render(); }}, "\u21BA Nochmal")
+    ]);
+    app.appendChild(ctrls);
+  }
+
+  // Hint
+  app.appendChild(h("p", {style:{textAlign:"center",fontSize:"0.76rem",color:"#b8a898",marginTop:"0.7rem",fontStyle:"italic"}}, "Lies jede Stufe laut vor!"));
+}
+
+render();
+</script>
+</body>
+</html>
